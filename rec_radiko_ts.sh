@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Radiko timefree program recorder
 # Copyright (C) 2017-2019 uru (https://twitter.com/uru_2)
