@@ -1,53 +1,58 @@
 # rec_radiko_ts
-ラジコタイムフリーの番組を保存するシェルスクリプトです。  
-必要な外部ツールは最小限に、またash,dashでも動作するよう努めています。
+radiko 타임프리(다시듣기) 방송을 저장하는 환경을 Docker에 구현
 
+*(서버는 일본지역 내에 있어야 하며, 타임프리 기능 사용을 위해서는 프리미엄 등록이 필요합니다)*
 
-## 必要なもの
-- curl
-- libxml2 (xmllintのみ使用)
-- FFmpeg (3.x以降 要AAC,HLSサポート)
+## 사용법
+```sh
+# save repository
+git clone https://github.com/sangwon-jung-work/rec_radiko_ts.git
+cd rec_radiko_ts
 
-## 使い方
+# Build Server
+docker build --tag (image name):(image version) .
+# Build Server Example
+docker build --tag radiko_ts_recorder:1.1 .
+
+# recording example
+docker run -it --rm -v (save dir):/rec (image name):(image version) -s QRR -f 202005312100 -t 202005312130 -o "/rec/(filename).m4a" -m "(ID)" -p "(PW)"
+
+# recording example(joqr)
+docker run -it --rm -v /recorder:/rec radiko_ts_recorder:1.1 -s QRR -f 202005312100 -t 202005312130 -o "/rec/AYAKA_ts_2020-05-31-20-59.m4a" -m "(ID)" -p "(PW)"
 ```
-$ ./rec_radiko_ts.sh [options]
-```
 
-| 引数 | 必須 |説明 |備考 |
+| 인수 | 필수여부 | 설명 | 비고 |
 |:-:|:-:|:-|:-|
-|-s _STATION_|○|放送局ID|ラジコサイトの番組表から番組詳細ページへ移動したあとのURL  /#!/ts/`???`/ にあたる文字 <sup>[*1](#param_note1)</sup>|
-|-f _DATETIME_|○|開始日時|JSTでの日時 %Y%m%d%H%M形式|
-|-t _DATETIME_|△<sup>[*2](#param_note2)</sup>|終了日時|JSTでの日時 %Y%m%d%H%M形式 <sup>[*3](#param_note3)</sup>|
-|-d _MINUTE_|△<sup>[*2](#param_note2)</sup>|録音時間(分)|`-f` で指定した時間に加算することで終了日時を計算する <sup>[*3](#param_note3)</sup>|
-|-u _URL_||番組URL|ラジコサイトの番組表から番組詳細ページへ移動したあとのURLを元に `-s` `-f` `-t` の値を自動で取得する|
-|-m _MAIL_||ラジコプレミアム メールアドレス||
-|-p _PASSWORD_||ラジコプレミアム パスワード||
-|-o _PATH_||出力パス|未指定の場合カレントディレクトリに `放送局ID_開始日時_終了日時.m4a` というファイルを作成|
+|-s _STATION_|○|방송국ID|ラジコサイトの番組表から番組詳細ページへ移動したあとのURL  /#!/ts/`???`/ にあたる文字 <sup>[*1](#param_note1)</sup>|
+|-f _DATETIME_|○|시작시간|프로그램 시작일시(JST). %Y%m%d%H%M 형식|
+|-t _DATETIME_|△<sup>[*2](#param_note2)</sup>|종료시간| 프로그램 종료일시(JST). %Y%m%d%H%M 형식 <sup>[*3](#param_note3)</sup>|
+|-d _MINUTE_|△<sup>[*2](#param_note2)</sup>|녹음시간(분)|`-f` 으로 설정한 일시에 더해 종료시간을 계산하는데 사용한다 <sup>[*3](#param_note3)</sup>|
+|-u _URL_||방송URL|Radiko 사이트 편성표에서 이 URL을 기반으로 프로그램 정보를 읽어온다. `-s` `-f` `-t` 인수의 데이터 자동지정|
+|-m _MAIL_||Radiko ID(이메일)||
+|-p _PASSWORD_||Radiko Password||
+|-o _PATH_||저장위치|저장 경로와 함께 파일명을 지정할 수 있다|
 
-<a id="param_note1" name="param_note1">*1</a> http://radiko.jp/v3/station/region/full.xml のIDと同じ。  
-<a id="param_note2" name="param_note2">*2</a> どちらかのオプションを指定すること。`-t` および `-d` の両方が指定されていた場合、終了日時は長くなるほうに合わせる。  
-<a id="param_note3" name="param_note3">*3</a> 終了日時はスクリプトを実行する日時-2分前までになるよう指定すること。未来の日時を指定したりスクリプト実行直前の日時を指定した場合はエラーが発生、または再生できないファイルが生成されることがある。  
+<a id="param_note1" name="param_note1">*1</a> http://radiko.jp/v3/station/region/full.xml 의 ID와 동일.  
+<a id="param_note2" name="param_note2">*2</a> 최소 둘 중 하나의 인수는 지정한다. `-t` 와 `-d` 모두 지정되지 않으면, 종료시간은 길어지는 쪽에 맞춘다.  
+<a id="param_note3" name="param_note3">*3</a> 종료시간은 스크립트를 실행할 일시보다 2분 이르게(-2분) 설정할 것. 미래의 일시를 지정하거나 스크립트 실행일시를 지정할 경우 오류가 발생하거나 재생할 수 없는 파일이 생성될 수 있다.
 
 
-## 実行例
+## 실행 예시
+
+사용법 (image name):(image version) 다음에 지정 가능.
+
 ```
-# エリア内の局
+# IP 내 지역의 방송
 $ ./rec_radiko_ts.sh -s RN1 -f 201705020825 -t 201705020835 -o "/hoge/2017-05-02 日経電子版NEWS(朝).m4a"
-# エリア外の局 (エリアフリー)
+# IP 외 지역의 방송(エリアフリー)
 $ ./rec_radiko_ts.sh -s YBC -f 201704300855 -t 201704300900 -o "/hoge/2017-04-30 ラジオで詰め将棋.m4a" -m "foo@example.com" -p "password"
-# 終了日時ではなく録音時間で指定
+# 종료시간 대신 녹음시간 지정
 $ ./rec_radiko_ts.sh -s RN1 -f 201705020825 -d 10
-# 番組URLから
+# 방송 URL 지정
 $ ./rec_radiko_ts.sh -u 'http://radiko.jp/#!/ts/YFM/20170603223000'
 ```
 
-もっとも単体で動かすよりはcronとして以下のように仕掛けると便利でしょう。
-```
-37 8 * * 1,2,3,4,5 rec_radiko_ts.sh -s RN1 -f "`date +\%Y\%m\%d`0825" -t "`date +\%Y\%m\%d`0835" -o "/hoge/`date +\%Y-\%m-\%d` 日経電子版NEWS(朝).m4a"
-```
-
-
-## 動作確認環境
+## 테스트 환경
 - Ubuntu 16.04.2
     - curl 7.47.0
     - xmllint using libxml version 20903
@@ -57,24 +62,19 @@ $ ./rec_radiko_ts.sh -u 'http://radiko.jp/#!/ts/YFM/20170603223000'
     - xmllint using libxml version 20904
     - ffmpeg 3.3.3
 
-余談ですが、Windows 10 Creators UpdateビルドでのWindows Subsystem for LinuxのUbuntuでも動作します。
+Windows 10 Creators Update 빌드 설치 후 사용 가능한 Windows Subsystem for Linux의 Ubuntu에서도 동작.
 
 
-## 備考
-- `-f` および `-t` を同一日時(または `-d 0` )にした場合にm4aは0分ではなく5分間のデータとなりますが、これはラジコ側の ~~バグ~~ 仕様のようです。
-    - プレイリストAPIでは5秒単位で時間指定できますが、時間の差を1〜5秒に指定した場合はきちんと5秒のデータが作成されます。 ~~(やっぱりこれバグじゃない?)~~
-
-
-##  作った人
+##  제작자(fork 에서 확인가능)
 うる。 ([@uru_2](https://twitter.com/uru_2))
 
 
-## ライセンス
+## License
 [MIT License](LICENSE)
 
 
-## 謝辞
-下記のソースコード・情報を参考にさせていただきました。
+## 출처
+아래의 출처를 참고하였습니다.
 
 - https://github.com/ez-design/RTFree
 - http://kyoshiaki.hatenablog.com/entry/2014/05/04/184748
