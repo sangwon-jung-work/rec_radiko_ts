@@ -494,7 +494,7 @@ fi
 
 # Record
 ffmpeg \
-    -loglevel error \
+    -loglevel info \
     -fflags +discardcorrupt \
     -headers "X-Radiko-Authtoken: ${authtoken}" \
     -i "https://radiko.jp/v2/api/ts/playlist.m3u8?station_id=${station_id}&l=15&ft=${fromtime}00&to=${totime}00" \
