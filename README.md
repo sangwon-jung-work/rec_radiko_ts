@@ -9,10 +9,32 @@ radiko 타임프리(다시듣기) 방송을 저장하는 환경을 Docker에 구
 git clone https://github.com/sangwon-jung-work/rec_radiko_ts.git
 cd rec_radiko_ts
 
+#
+# install github cli or latest ffmpeg build url
+#
+# install github cli
+# https://github.com/cli/cli#installation
+#
+# get url from release page
+# search to ffmpeg-nx.x-latest-linux64-gpl-x.x.tar.xz (not master-latest) and copy url that
+# https://github.com/yt-dlp/FFmpeg-Builds/releases/tag/latest
+
+#
+# set environment variable (for url)
+#
+# if install github cli
+gh auth login
+
+FFMPEG_URL=$( gh api --jq '.assets[8]."browser_download_url"' -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/yt-dlp/FFmpeg-Builds/releases/latest )
+
+#
+# if just copy url
+FFMPEG_URL=(paste that url)
+
 # Build Server
-docker build --tag (image name):(image version) .
+docker build --build-arg FFMPEG_LATEST_URL=$FFMPEG_URL --tag (image name):(image version) .
 # Build Server Example
-docker build --tag radiko_ts_recorder:1.1 .
+docker build --build-arg FFMPEG_LATEST_URL=$FFMPEG_URL --tag radiko_ts_recorder:1.1 .
 
 # recording example
 docker run -it --rm -v (save dir):/rec (image name):(image version) -s QRR -f 202005312100 -t 202005312130 -o "/rec/(filename).m4a" -m "(ID)" -p "(PW)"
@@ -76,6 +98,8 @@ Windows 10 Creators Update 빌드 설치 후 사용 가능한 Windows Subsystem 
 ## 출처
 아래의 출처를 참고하였습니다.
 
+- [install github cli for linux](https://github.com/cli/cli/blob/trunk/docs/install_linux.md)
+- [yt-dlp FFmpeg pre Build repository](https://github.com/yt-dlp/FFmpeg-Builds/releases/tag/latest)
 - https://github.com/ez-design/RTFree
 - http://kyoshiaki.hatenablog.com/entry/2014/05/04/184748
 - http://mizukifu.blog29.fc2.com/blog-entry-1429.html
