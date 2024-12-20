@@ -26,15 +26,18 @@ cd rec_radiko_ts
 gh auth login
 
 FFMPEG_URL=$( gh api --jq '.assets[8]."browser_download_url"' -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/yt-dlp/FFmpeg-Builds/releases/latest )
-
 #
 # if just copy url
 FFMPEG_URL=(paste that url)
 
-# Build Server
-docker build --build-arg FFMPEG_LATEST_URL=$FFMPEG_URL --tag (image name):(image version) .
-# Build Server Example
-docker build --build-arg FFMPEG_LATEST_URL=$FFMPEG_URL --tag radiko_ts_recorder:1.1 .
+#
+# set build date
+TODAY=$( date '+%Y%m%d' )
+
+# Build image
+docker build --build-arg FFMPEG_LATEST_URL=$FFMPEG_URL --build-arg BUILD_DATE=$TODAY --tag (image name):(image version) .
+# Build image Example
+docker build --build-arg FFMPEG_LATEST_URL=$FFMPEG_URL --build-arg BUILD_DATE=$TODAY --tag radiko_ts_recorder:1.1 .
 
 # recording example
 docker run -it --rm -v (save dir):/rec (image name):(image version) -s QRR -f 202005312100 -t 202005312130 -o "/rec/(filename).m4a" -m "(ID)" -p "(PW)"
