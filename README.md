@@ -25,7 +25,7 @@ cd rec_radiko_ts
 # if install github cli
 gh auth login
 
-FFMPEG_URL=$( gh api --jq '.assets[8]."browser_download_url"' -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/yt-dlp/FFmpeg-Builds/releases/latest )
+FFMPEG_URL=$( gh api --jq '.assets[1]."browser_download_url"' -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/yt-dlp/FFmpeg-Builds/releases/latest )
 #
 # if just copy url
 FFMPEG_URL=(paste that url)
