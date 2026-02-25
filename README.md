@@ -40,22 +40,23 @@ docker build --build-arg FFMPEG_LATEST_URL=$FFMPEG_URL --build-arg BUILD_DATE=$T
 docker build --build-arg FFMPEG_LATEST_URL=$FFMPEG_URL --build-arg BUILD_DATE=$TODAY --tag radiko_ts_recorder:1.1 .
 
 # recording example
-docker run -it --rm -v (save dir):/rec (image name):(image version) -s QRR -f 202005312100 -t 202005312130 -o "/rec/(filename).m4a" -m "(ID)" -p "(PW)"
+docker run -it --rm -v (save dir):/rec (image name):(image version) -s QRR -f 202605312100 -t 202605312130 -o "/rec/(filename).m4a" -m "(ID)" -p "(PW)"
 
 # recording example(joqr)
-docker run -it --rm -v /recorder:/rec radiko_ts_recorder:1.1 -s QRR -f 202005312100 -t 202005312130 -o "/rec/AYAKA_ts_2020-05-31-20-59.m4a" -m "(ID)" -p "(PW)"
+docker run -it --rm -v /recorder:/rec radiko_ts_recorder:1.1 -s QRR -f 202605312100 -t 202605312130 -o "/rec/AYAKA_ts_2026-05-31-20-59.m4a" -m "(ID)" -p "(PW)"
 ```
 
 | 인수 | 필수여부 | 설명 | 비고 |
 |:-:|:-:|:-|:-|
-|-s _STATION_|○|방송국ID|ラジコサイトの番組表から番組詳細ページへ移動したあとのURL  /#!/ts/`???`/ にあたる文字 <sup>[*1](#param_note1)</sup>|
+|-s _STATION_|○|방송국ID|radiko 사이트의 프로그램 상세로 이동한 후의 URL /#!/ts/`???`/ 부분의 문자 <sup>[*1](#param_note1)</sup>|
 |-f _DATETIME_|○|시작시간|프로그램 시작일시(JST). %Y%m%d%H%M 형식|
 |-t _DATETIME_|△<sup>[*2](#param_note2)</sup>|종료시간| 프로그램 종료일시(JST). %Y%m%d%H%M 형식 <sup>[*3](#param_note3)</sup>|
 |-d _MINUTE_|△<sup>[*2](#param_note2)</sup>|녹음시간(분)|`-f` 으로 설정한 일시에 더해 종료시간을 계산하는데 사용한다 <sup>[*3](#param_note3)</sup>|
 |-u _URL_||방송URL|Radiko 사이트 편성표에서 이 URL을 기반으로 프로그램 정보를 읽어온다. `-s` `-f` `-t` 인수의 데이터 자동지정|
 |-m _MAIL_||Radiko ID(이메일)||
 |-p _PASSWORD_||Radiko Password||
-|-o _PATH_||저장위치|저장 경로와 함께 파일명을 지정할 수 있다|
+|-o _PATH_||저장위치|저장 경로와 함께 파일명을 지정할 수 있다||
+|-l       || 방송국 정보 중 ID,이름,최대지연시간을 표시 ||
 
 <a id="param_note1" name="param_note1">*1</a> http://radiko.jp/v3/station/region/full.xml 의 ID와 동일.  
 <a id="param_note2" name="param_note2">*2</a> 최소 둘 중 하나의 인수는 지정한다. `-t` 와 `-d` 모두 지정되지 않으면, 종료시간은 길어지는 쪽에 맞춘다.  
@@ -68,13 +69,13 @@ docker run -it --rm -v /recorder:/rec radiko_ts_recorder:1.1 -s QRR -f 202005312
 
 ```
 # IP 내 지역의 방송
-$ ./rec_radiko_ts.sh -s RN1 -f 201705020825 -t 201705020835 -o "/hoge/2017-05-02 日経電子版NEWS(朝).m4a"
+$ ./rec_radiko_ts.sh -s RN1 -f 202605020825 -t 202605020835 -o "/hoge/2026-05-02 日経電子版NEWS(朝).m4a"
 # IP 외 지역의 방송(エリアフリー)
-$ ./rec_radiko_ts.sh -s YBC -f 201704300855 -t 201704300900 -o "/hoge/2017-04-30 ラジオで詰め将棋.m4a" -m "foo@example.com" -p "password"
+$ ./rec_radiko_ts.sh -s YBC -f 202604300855 -t 202604300900 -o "/hoge/2026-04-30 ラジオで詰め将棋.m4a" -m "foo@example.com" -p "password"
 # 종료시간 대신 녹음시간 지정
-$ ./rec_radiko_ts.sh -s RN1 -f 201705020825 -d 10
+$ ./rec_radiko_ts.sh -s RN1 -f 202605020825 -d 10
 # 방송 URL 지정
-$ ./rec_radiko_ts.sh -u 'http://radiko.jp/#!/ts/YFM/20170603223000'
+$ ./rec_radiko_ts.sh -u 'http://radiko.jp/#!/ts/YFM/20260603223000'
 ```
 
 ## 테스트 환경
