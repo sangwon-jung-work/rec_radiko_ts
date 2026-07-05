@@ -282,7 +282,7 @@ show_all_stations() {
   # Format to "{id}:{name}"
   curl --silent 'https://radiko.jp/v3/station/region/full.xml' \
     | xmllint --xpath '/region/stations/station[timefree="1"]/id/text() | /region/stations/station[timefree="1"]/name/text() | /region/stations/station[timefree="1"]/tf_max_delay/text()' - \
-    | paste -d ':' - - -
+    | awk 'ORS=NR%3?":":"\n"'
 }
 
 #######################################
@@ -311,9 +311,9 @@ extract_url_params() {
     # 24:00-28:59 -> next day 0:00-4:59
     if echo "${fromtime}" | grep -q -e '^[0-9]\{8,8\}2[4-8]' ; then
       utime_date=$(($(to_unixtime "$(echo "${fromtime}" | cut -c 1-8)000000") + 86400))
-      utime_hour=$((($(echo "${fromtime}" | awk '{print substr($0,9,2)}') - 24) * 3600))
-      utime_minute=$(($(echo "${fromtime}" | awk '{print substr($0,11,2)}') * 60))
-      utime_second=$(($(echo "${fromtime}" | awk '{print substr($0,13,2)}') - 0))
+      utime_hour=$((($(echo "${fromtime}" | cut -c 9-10) - 24) * 3600))
+      utime_minute=$(($(echo "${fromtime}" | cut -c 11-12) * 60))
+      utime_second=$(($(echo "${fromtime}" | cut -c 13-14) - 0))
 
       utime=$((utime_date + utime_hour + utime_minute + utime_second))
       fromtime=$(to_datetime "${utime}")
@@ -370,7 +370,7 @@ radiko_auth() {
     | tr -d '\r') || return 1
 
   # Get partial key
-  authtoken=$(echo "${auth1_res}" | sed -n 's/^[xX]-[rR][aA][dD][iI][kK][oO]-[aU][uU][tT][hH][tT][oO][kK][eE][nN]:[ \t]*\(.\{1,\}\)$/\1/p')
+  authtoken=$(echo "${auth1_res}" | sed -n 's/^[xX]-[rR][aA][dD][iI][kK][oO]-[aA][uU][tT][hH][tT][oO][kK][eE][nN]:[ \t]*\(.\{1,\}\)$/\1/p')
   keyoffset=$(echo "${auth1_res}" | sed -n 's/^[xX]-[rR][aA][dD][iI][kK][oO]-[kK][eE][yY][oO][fF][fF][sS][eE][tT]:[ \t]*\(.\{1,\}\)$/\1/p')
   keylength=$(echo "${auth1_res}" | sed -n 's/^[xX]-[rR][aA][dD][iI][kK][oO]-[kK][eE][yY][lL][eE][nN][gG][tT][hH]:[ \t]*\(.\{1,\}\)$/\1/p')
   if [ -z "${authtoken}" ] || [ -z "${keyoffset}" ] || [ -z "${keylength}" ]; then
