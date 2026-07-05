@@ -10,9 +10,10 @@ LABEL recorder.image.version=1.10
 LABEL recorder.image.target=timefree
 LABEL recorder.image.release-date=$BUILD_DATE
 
-RUN apt-get update -y && apt-get install -y software-properties-common libxml2-utils wget curl jq git openssl libssl-dev tzdata zlib1g-dev nasm xz-utils unzip 
+RUN apt-get update -y && apt-get install -y software-properties-common libxml2-utils ca-certificates wget curl jq git openssl libssl-dev tzdata zlib1g-dev nasm xz-utils unzip 
 RUN ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1000
+RUN update-ca-certificates
 RUN mkdir /var/src
 WORKDIR /var/src
 
